@@ -11,7 +11,7 @@ This project is designed for learning and experimenting with modern C++.
 ## Building
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Allexsen/GoL-PlusPlus
 cd GoL-PlusPlus
 ```
 2. Make sure SFML-3.0.0 is present (or update CMakeLists.txt to your SFML path).
