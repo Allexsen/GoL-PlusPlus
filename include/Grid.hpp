@@ -1,7 +1,11 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <Cell.hpp>
+#include <vector>
+#include "Cell.hpp"
+
+class Entity;
+enum class EntityType;
 
 class Grid {
 public:
@@ -13,9 +17,11 @@ public:
     unsigned int GetHeight() const { return height_; }
     unsigned int GetCellSize() const { return cell_size_; }
     std::vector<std::vector<Cell>>& GetCells() { return cells_; }
-
-    int CountAliveNeighbors(unsigned int x, unsigned int y);
-    void ToggleCell(unsigned int y, unsigned int x);
+    
+    void UpdatePacks();
+    void UpdateCell(unsigned int x, unsigned int y, std::unique_ptr<Entity> entity);
+    void EmptyCell(unsigned int x, unsigned int y);
+    int CountAliveNeighbors(unsigned int x, unsigned int y, EntityType type);
 
 private:
     unsigned int width_;

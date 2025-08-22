@@ -4,12 +4,8 @@ project(GameOfLife CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(game_of_life
-    src/main.cpp
-    src/Grid.cpp
-    src/GameOfLife.cpp
-    src/Cell.cpp
-)
+file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
+add_executable(game_of_life ${SRC_FILES})
 
 target_include_directories(game_of_life PRIVATE include)
 

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <Grid.hpp>
+#include "Grid.hpp"
+#include "Entity.hpp"
 
 class GameOfLife {
 public:
@@ -23,4 +24,5 @@ private:
     bool running_;
     float tick_rate_;
     float accumulator_;
+    EntityType spawn_type_ = EntityType::kHuman;
 };

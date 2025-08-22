@@ -1,15 +1,19 @@
-#include <GameOfLife.hpp>
+#include <SFML/Graphics.hpp>
+#include "GameOfLife.hpp"
+#include "Human.hpp"
+#include "Wolf.hpp"
+#include "Grid.hpp"
 
 GameOfLife::GameOfLife(unsigned int window_width, unsigned int window_height, unsigned int cell_size, float tick_rate)
     : window_(sf::VideoMode({window_width, window_height}), "Game of Life++"),
-      grid_(window_width, window_height, cell_size),
-      running_(false),
-      tick_rate_(tick_rate),
-      accumulator_(0.0f) {
+        window_width_(window_width),
+        window_height_(window_height),
+        cell_size_(cell_size),
+        tick_rate_(tick_rate),
+        accumulator_(0.0f),
+        grid_(window_width, window_height, cell_size),
+        running_(false) {
     window_.setFramerateLimit(60);
-    window_width_ = window_width;
-    window_height_ = window_height;
-    cell_size_ = cell_size;
 }
 
 void GameOfLife::Run() {
@@ -38,14 +42,38 @@ void GameOfLife::ProcessEvents() {
         }
 
         if (!running_ && event->is<sf::Event::MouseButtonPressed>()) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-                sf::Vector2i mouse_pos = sf::Mouse::getPosition(window_);
-                int cell_x = mouse_pos.x / cell_size_;
-                int cell_y = mouse_pos.y / cell_size_;
+            sf::Vector2i mouse_pos = sf::Mouse::getPosition(window_);
+            int cell_x = mouse_pos.x / cell_size_;
+            int cell_y = mouse_pos.y / cell_size_;
 
-                if (cell_x >= 0 && cell_x < grid_.GetWidth() && cell_y >= 0 && cell_y < grid_.GetHeight())
-                    grid_.ToggleCell(cell_y, cell_x);
+            if (cell_x >= 0 && cell_x < grid_.GetWidth() && cell_y >= 0 && cell_y < grid_.GetHeight()) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+                    switch (spawn_type_) {
+                        case EntityType::kHuman:
+                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Human>(100, 5, 30)); // TODO: Centralize entity stats
+                            break;
+                        case EntityType::kWolf:
+                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Wolf>(100, 3, 70)); // TODO: Centralize entity stats
+                            break;
+                        case EntityType::kPlant:
+                            // TODO: implement Plant and spawn
+                            break;
+                        case EntityType::kWall:
+                            // TODO: implement Wall and spawn
+                            break;
+                    }
+                } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+                    grid_.EmptyCell(cell_y, cell_x);
+                }
             }
+        }
+
+        // numeric keys switch spawn type
+        if (!running_ && event->is<sf::Event::KeyPressed>()) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1)) spawn_type_ = EntityType::kHuman;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2)) spawn_type_ = EntityType::kWolf;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3)) spawn_type_ = EntityType::kPlant;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4)) spawn_type_ = EntityType::kWall;
         }
     }
 }
