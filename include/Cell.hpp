@@ -18,7 +18,7 @@ public:
     Cell(Cell&&) noexcept;
     Cell& operator=(Cell&&) noexcept;
 
-    bool IsAlive() const { return alive_; }
+    bool IsAlive() const { return alive_; } // TODO: Move IsAlive() logic to Entity
 
     // Alpha ranges from 20% (alive but low HP) to 100% (full HP)
     sf::Color GetColor() const;

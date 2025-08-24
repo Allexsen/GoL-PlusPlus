@@ -2,6 +2,8 @@
 #include "GameOfLife.hpp"
 #include "Human.hpp"
 #include "Wolf.hpp"
+#include "Plant.hpp"
+#include "Wall.hpp"
 #include "Grid.hpp"
 
 GameOfLife::GameOfLife(unsigned int window_width, unsigned int window_height, unsigned int cell_size, float tick_rate)
@@ -56,10 +58,10 @@ void GameOfLife::ProcessEvents() {
                             grid_.UpdateCell(cell_y, cell_x, std::make_unique<Wolf>(100, 3, 70)); // TODO: Centralize entity stats
                             break;
                         case EntityType::kPlant:
-                            // TODO: implement Plant and spawn
+                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Plant>(10)); // TODO: Centralize entity stats
                             break;
                         case EntityType::kWall:
-                            // TODO: implement Wall and spawn
+                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Wall>(200)); // TODO: Centralize entity stats
                             break;
                     }
                 } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {

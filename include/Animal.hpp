@@ -9,13 +9,14 @@ class Grid;
 
 class Animal : public Entity {
 public:
-    Animal(int hp, int hunger, int damage, Pack* pack = nullptr);
+    Animal(int max_hp, int max_hunger, int damage, Pack* pack = nullptr);
     int GetHP() const { return hp_; }
     int GetHunger() const { return hunger_; }
     int GetDamage() const { return damage_; }
     int SetPack(Pack* pack);
     // TODO: Pack* GetPack() const { return pack_; }
-
+    
+    void Feed();
     bool TakeDamage(int damage) override;
     void Attack(std::vector<std::vector<Cell>>& cells, std::vector<std::vector<Cell>>& next_cells, int y, int x) override;
 
@@ -26,7 +27,9 @@ public:
     
 protected:
     int hp_;
+    int max_hp_;
     int hunger_;
+    int max_hunger_;
     int damage_;
     Pack* pack_ = nullptr;
 };
