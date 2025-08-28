@@ -1,6 +1,6 @@
 #include "Wall.hpp"
 
-Wall::Wall(int hp) : max_hp_(200), hp_(hp) {
+Wall::Wall(int hp, int max_hp) : hp_(hp), max_hp_(max_hp) {
     if (hp_ > max_hp_) hp_ = max_hp_;
 }
 

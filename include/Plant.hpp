@@ -4,7 +4,7 @@
 
 class Plant : public Entity {
 public:
-    Plant(int hp_);
+    Plant(int hp, int max_hp, int damage_);
     void Update(Grid& grid, int y, int x) override;
     EntityType Type() const override { return EntityType::kPlant; }
 
@@ -14,7 +14,7 @@ public:
     void Heal();
 
     std::unique_ptr<Entity> Clone() const override {
-        return std::make_unique<Plant>(hp_);
+        return std::make_unique<Plant>(hp_, max_hp_, damage_);
     }
 
 private:

@@ -4,7 +4,7 @@
 
 class Wall : public Entity {
 public:
-    Wall(int hp);
+    Wall(int hp, int max_hp);
     void Update(Grid& grid, int y, int x) override;
     int GetHP() const override { return hp_; }
     bool TakeDamage(int damage) override;
@@ -12,7 +12,7 @@ public:
     void Attack(std::vector<std::vector<Cell>>& cells, std::vector<std::vector<Cell>>& next_cells, int y, int x) override;
 
     std::unique_ptr<Entity> Clone() const override {
-        return std::make_unique<Wall>(hp_);
+        return std::make_unique<Wall>(hp_, max_hp_);
     }
 private:
     int hp_;

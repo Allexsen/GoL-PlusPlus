@@ -3,12 +3,15 @@
 #include "Cell.hpp"
 #include "Pack.hpp"
 
-Animal::Animal(int max_hp, int max_hunger, int damage, Pack* pack)
-    : hp_(max_hp), max_hp_(max_hp), hunger_(max_hunger), max_hunger_(max_hunger), damage_(damage), pack_(pack) {
+Animal::Animal(int hp, int max_hp, int hunger, int max_hunger, int damage, Pack* pack)
+    : hp_(hp), max_hp_(max_hp), hunger_(hunger), max_hunger_(max_hunger), damage_(damage), pack_(pack) {
         if (!pack) {
             pack_ = new Pack();
         } 
         pack_->AddMember();
+
+        if (hp_ > max_hp_) hp_ = max_hp_;
+        if (hunger_ > max_hunger_) hunger_ = max_hunger_;
     }
 
 bool Animal::TakeDamage(int damage) {

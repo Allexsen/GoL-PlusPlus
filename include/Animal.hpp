@@ -9,7 +9,7 @@ class Grid;
 
 class Animal : public Entity {
 public:
-    Animal(int max_hp, int max_hunger, int damage, Pack* pack = nullptr);
+    Animal(int hp, int max_hp, int hunger, int max_hunger, int damage, Pack* pack = nullptr);
     int GetHP() const { return hp_; }
     int GetHunger() const { return hunger_; }
     int GetDamage() const { return damage_; }

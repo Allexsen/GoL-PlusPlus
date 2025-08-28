@@ -2,8 +2,9 @@
 #include "Plant.hpp"
 #include "Cell.hpp"
 #include "Grid.hpp"
+#include <EntityFactory.hpp>
 
-Plant::Plant(int hp) : hp_(hp), max_hp_(100), damage_(5) {
+Plant::Plant(int hp, int max_hp, int damage) : hp_(hp), max_hp_(max_hp), damage_(damage) {
     if (hp_ > max_hp_) hp_ = max_hp_;
 }
 
@@ -26,7 +27,7 @@ void Plant::Attack(std::vector<std::vector<Cell>>& cells, std::vector<std::vecto
                     bool is_dead = next_cells[ny][nx].GetEntity()->TakeDamage(damage_);
                     if (is_dead) {
                         next_cells[ny][nx].RemoveEntity();
-                        next_cells[ny][nx].SetEntity(std::make_unique<Plant>(10));
+                        next_cells[ny][nx].SetEntity(EntityFactory::CreatePlant());
                     }
             }
         }

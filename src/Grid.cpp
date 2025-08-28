@@ -6,6 +6,7 @@
 #include "Wolf.hpp"
 #include "Plant.hpp"
 #include "Cell.hpp"
+#include <EntityFactory.hpp>
 
 Grid::Grid(unsigned int window_width, unsigned int window_height, unsigned int cell_size)
     : width_(window_width / cell_size),
@@ -27,13 +28,6 @@ void Grid::Update() {
 
             if (current_cell.IsAlive() && current_cell.GetEntity()) {
                 current_cell.GetEntity()->Attack(cells_, next_cells, y, x);
-
-                if (current_cell.GetEntity()->Type() == EntityType::kPlant &&
-                    next_cell.IsAlive() &&
-                    next_cell.GetEntity()->Type() == EntityType::kPlant) {
-                        Plant* plant = dynamic_cast<Plant*>(next_cell.GetEntity());
-                        plant->Heal();
-                }
             }
         }
     }
@@ -43,6 +37,13 @@ void Grid::Update() {
         for (int x = 0; x < width_; ++x) {
             Cell& current_cell = cells_[y][x];
             Cell& next_cell = next_cells[y][x];
+            
+            if (next_cell.GetEntity() && next_cell.GetEntity()->Type() == EntityType::kPlant) {
+                Plant* plant = dynamic_cast<Plant*>(next_cell.GetEntity());
+                if (plant) {
+                    plant->Heal();
+                }
+            }
             
             if (current_cell.IsAlive()) {
                 EntityType type = current_cell.GetEntity()->Type();
@@ -56,13 +57,14 @@ void Grid::Update() {
                 }
             } else {
                 if (CountAliveNeighbors(y, x, EntityType::kWolf) == 3) {
-                    next_cell.SetEntity(std::make_unique<Wolf>(100, 3, 70));
+                    next_cell.SetEntity(EntityFactory::CreateWolf());
                 } else if (CountAliveNeighbors(y, x, EntityType::kHuman) == 3) {
-                    next_cell.SetEntity(std::make_unique<Human>(100, 5, 30));
+                    next_cell.SetEntity(EntityFactory::CreateHuman());
                 } else if (CountAliveNeighbors(y, x, EntityType::kPlant) == 3) {
-                    next_cell.SetEntity(std::make_unique<Plant>(100));
+                    next_cell.SetEntity(EntityFactory::CreatePlant());
                 }
             }
+
         }
     }
 
@@ -70,13 +72,13 @@ void Grid::Update() {
 }
 
 void Grid::UpdateCell(unsigned int y, unsigned int x, std::unique_ptr<Entity> entity) {
-    if (x < width_ && y < height_) {
+    if (y < height_ && x < width_) {
         cells_[y][x].SetEntity(std::move(entity));
     }
 }
 
 void Grid::EmptyCell(unsigned int y, unsigned int x) {
-    if (x < width_ && y < height_) {
+    if (y < height_ && x < width_) {
         cells_[y][x].RemoveEntity();
     }
 }

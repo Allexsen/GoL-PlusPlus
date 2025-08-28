@@ -1,10 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "GameOfLife.hpp"
-#include "Human.hpp"
-#include "Wolf.hpp"
-#include "Plant.hpp"
-#include "Wall.hpp"
 #include "Grid.hpp"
+#include "EntityFactory.hpp"
 
 GameOfLife::GameOfLife(unsigned int window_width, unsigned int window_height, unsigned int cell_size, float tick_rate)
     : window_(sf::VideoMode({window_width, window_height}), "Game of Life++"),
@@ -52,16 +49,16 @@ void GameOfLife::ProcessEvents() {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
                     switch (spawn_type_) {
                         case EntityType::kHuman:
-                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Human>(100, 5, 30)); // TODO: Centralize entity stats
+                            grid_.UpdateCell(cell_y, cell_x, EntityFactory::CreateHuman());
                             break;
                         case EntityType::kWolf:
-                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Wolf>(100, 3, 70)); // TODO: Centralize entity stats
+                            grid_.UpdateCell(cell_y, cell_x, EntityFactory::CreateWolf());
                             break;
                         case EntityType::kPlant:
-                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Plant>(10)); // TODO: Centralize entity stats
+                            grid_.UpdateCell(cell_y, cell_x, EntityFactory::CreatePlant());
                             break;
                         case EntityType::kWall:
-                            grid_.UpdateCell(cell_y, cell_x, std::make_unique<Wall>(200)); // TODO: Centralize entity stats
+                            grid_.UpdateCell(cell_y, cell_x, EntityFactory::CreateWall());
                             break;
                     }
                 } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
