@@ -5,7 +5,7 @@ int main()
     const unsigned int kWindowWidth = 1280;
     const unsigned int kWindowHeight = 720;
     const unsigned int kCellSize = 20;
-    const float kTickRate = 0.2f;
+    const float kTickRate = 0.6f;
 
     GameOfLife game(kWindowWidth, kWindowHeight, kCellSize, kTickRate);
     game.Run();

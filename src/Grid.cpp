@@ -1,5 +1,12 @@
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <memory>
 #include "Grid.hpp"
+#include "Human.hpp"
+#include "Wolf.hpp"
+#include "Plant.hpp"
+#include "Cell.hpp"
+#include <EntityFactory.hpp>
 
 Grid::Grid(unsigned int window_width, unsigned int window_height, unsigned int cell_size)
     : width_(window_width / cell_size),
@@ -10,29 +17,81 @@ Grid::Grid(unsigned int window_width, unsigned int window_height, unsigned int c
 }
 
 void Grid::Update() {
+    // TODO: Review copying. This can be done without copying.
+    // next_cells are only accessed to update - not to read. It can be empty.
     std::vector<std::vector<Cell>> next_cells = cells_;
 
     for (int y = 0; y < height_; ++y) {
         for (int x = 0; x < width_; ++x) {
             const Cell& current_cell = cells_[y][x];
             Cell& next_cell = next_cells[y][x];
-            int alive_neighbors = CountAliveNeighbors(y, x);
 
-            if (current_cell.IsAlive()) {
-                if (alive_neighbors < 2 || alive_neighbors > 3)
-                    next_cell = Cell(false, current_cell.GetColorAlive(), current_cell.GetColorDead());
-                else
-                    next_cell = Cell(true, current_cell.GetColorAlive(), current_cell.GetColorDead());
-            } else {
-                if (alive_neighbors == 3)
-                    next_cell = Cell(true, current_cell.GetColorAlive(), current_cell.GetColorDead());
-                else
-                    next_cell = Cell(false, current_cell.GetColorAlive(), current_cell.GetColorDead());
+            if (current_cell.IsAlive() && current_cell.GetEntity()) {
+                current_cell.GetEntity()->Attack(cells_, next_cells, y, x);
             }
         }
     }
 
     cells_ = next_cells;
+    for (int y = 0; y < height_; ++y) {
+        for (int x = 0; x < width_; ++x) {
+            Cell& current_cell = cells_[y][x];
+            Cell& next_cell = next_cells[y][x];
+            
+            if (next_cell.GetEntity() && next_cell.GetEntity()->Type() == EntityType::kPlant) {
+                Plant* plant = dynamic_cast<Plant*>(next_cell.GetEntity());
+                if (plant) {
+                    plant->Heal();
+                }
+            }
+            
+            if (current_cell.IsAlive()) {
+                EntityType type = current_cell.GetEntity()->Type();
+                if (type == EntityType::kWall || type == EntityType::kPlant) {
+                    continue; // Walls and plants don't die out.
+                }
+
+                int alive_neighbors = CountAliveNeighbors(y, x, type);
+                if (alive_neighbors < 2 || alive_neighbors > 3) {
+                    next_cell.RemoveEntity();
+                }
+            } else {
+                if (CountAliveNeighbors(y, x, EntityType::kWolf) == 3) {
+                    next_cell.SetEntity(EntityFactory::CreateWolf());
+                } else if (CountAliveNeighbors(y, x, EntityType::kHuman) == 3) {
+                    next_cell.SetEntity(EntityFactory::CreateHuman());
+                } else if (CountAliveNeighbors(y, x, EntityType::kPlant) == 3) {
+                    next_cell.SetEntity(EntityFactory::CreatePlant());
+                }
+            }
+
+        }
+    }
+
+    cells_ = next_cells;
+}
+
+void Grid::UpdateCell(unsigned int y, unsigned int x, std::unique_ptr<Entity> entity) {
+    if (y < height_ && x < width_) {
+        cells_[y][x].SetEntity(std::move(entity));
+    }
+}
+
+void Grid::EmptyCell(unsigned int y, unsigned int x) {
+    if (y < height_ && x < width_) {
+        cells_[y][x].RemoveEntity();
+    }
+}
+
+void Grid::UpdatePacks() {
+    for (unsigned int y = 0; y < height_; ++y) {
+        for (unsigned int x = 0; x < width_; ++x) {
+            Cell& cell = cells_[y][x];
+            if (cell.IsAlive()) {
+                // TODO: Pack Logic once Packs are introduced
+            }
+        }
+    }
 }
 
 void Grid::Render(sf::RenderWindow& window) {
@@ -42,12 +101,26 @@ void Grid::Render(sf::RenderWindow& window) {
         for (int x = 0; x < width_; ++x) {
             const Cell& cell = cells_[y][x];
             rectangle.setPosition({static_cast<float>(x * cell_size_), static_cast<float>(y * cell_size_)});
-            rectangle.setFillColor(cell.IsAlive() ? cell.GetColorAlive() : cell.GetColorDead());
+            rectangle.setFillColor(cell.GetColor());
             window.draw(rectangle);
         }
     }
 
     window.draw(grid_lines_);
+}
+
+int Grid::CountAliveNeighbors(unsigned int y, unsigned int x, EntityType type) {
+    int count = 0;
+    for (int dy = -1; dy <= 1; ++dy)
+    for (int dx = -1; dx <= 1; ++dx) {
+        if (dx == 0 && dy == 0) continue; // Skip the cell itself
+        unsigned int nx = x + dx;
+        unsigned int ny = y + dy;
+        if (ny < height_ && nx < width_ && cells_[ny][nx].IsAlive() && cells_[ny][nx].GetEntity()->Type() == type)
+        count++;
+    }
+    
+    return count;
 }
 
 sf::VertexArray Grid::CreateGridLines(unsigned int window_width_, unsigned int window_height_) {
@@ -66,23 +139,4 @@ sf::VertexArray Grid::CreateGridLines(unsigned int window_width_, unsigned int w
     }
 
     return lines;
-}
-
-int Grid::CountAliveNeighbors(unsigned int y, unsigned int x) {
-    int count = 0;
-    for (int dy = -1; dy <= 1; ++dy)
-        for (int dx = -1; dx <= 1; ++dx) {
-            if (dx == 0 && dy == 0) continue; // Skip the cell itself
-            unsigned int nx = x + dx;
-            unsigned int ny = y + dy;
-            if (ny < height_ && nx < width_ && cells_[ny][nx].IsAlive())
-                count++;
-        }
-
-    return count;
-}
-
-void Grid::ToggleCell(unsigned int y, unsigned int x) {
-    if (y < height_ && x < width_)
-        cells_[y][x].Toggle();
 }
